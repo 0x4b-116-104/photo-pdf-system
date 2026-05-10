@@ -164,7 +164,7 @@ if before or mid or after:
         # 4. 모바일 호환 미리보기 (Object 태그 활용)
         base64_pdf = base64.b64encode(pdf_bytes).decode('utf-8')
         # iframe 대신 object 태그를 사용하면 모바일 호환성이 조금 더 좋습니다.
-        pdf_display = f'''
+        pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="800" type="application/pdf"></iframe>'
             <object data="data:application/pdf;base64,{base64_pdf}" width="100%" height="600" type="application/pdf">
                 <div style="text-align:center; padding:20px; border:1px dashed #ccc;">
                     모바일 브라우저 환경에 따라 미리보기가 지원되지 않을 수 있습니다.<br>
