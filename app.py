@@ -155,22 +155,30 @@ if before or mid or after:
 # --- PDF 생성 완료 후 출력 섹션 ---
         st.success("✅ PDF 생성이 완료되었습니다!")
 
-        # 1. 메인 다운로드 버튼 (강조)
-        st.download_button(
-            label="📂 완성된 사진대지 PDF 다운로드",
-            data=pdf_bytes,
-            file_name=f"{work_name}_사진대지.pdf",
-            mime="application/pdf",
-            key="download-main"
-        )
+        # 1. 메인 다운로드 버튼 (data 부분을 bytes()로 감싸는 게 핵심)
+        try:
+            # pdf_bytes가 이미 bytes라면 그대로, 아니라면 변환
+            final_data = pdf_bytes if isinstance(pdf_bytes, bytes) else bytes(pdf_bytes)
+            
+            st.download_button(
+                label="📂 완성된 사진대지 PDF 다운로드",
+                data=final_data,
+                file_name=f"{work_name}_사진대지.pdf",
+                mime="application/pdf",
+                key="download-main"
+            )
+        except Exception as e:
+            st.error(f"다운로드 버튼 생성 중 오류가 발생했습니다: {e}")
 
         st.divider()
 
-        # 2. 보조 링크 (혹시 버튼이 안 눌릴 때를 대비)
-        base64_pdf = base64.b64encode(pdf_bytes).decode('utf-8')
-        href = f'<a href="data:application/pdf;base64,{base64_pdf}" download="{work_name}_사진대지.pdf" style="color: #007bff; text-decoration: underline; font-weight: bold;">[여기]를 눌러서 수동으로 다운로드하기</a>'
-        st.markdown(href, unsafe_allow_html=True)
-
+        # 2. 보조 링크 (이건 브라우저 기능이라 거의 실패 안 함)
+        try:
+            base64_pdf = base64.b64encode(final_data).decode('utf-8')
+            href = f'<a href="data:application/pdf;base64,{base64_pdf}" download="{work_name}_사진대지.pdf" style="color: #007bff; text-decoration: underline; font-weight: bold;">[여기]를 눌러서 수동으로 다운로드하기</a>'
+            st.markdown(href, unsafe_allow_html=True)
+        except:
+            pass
         # 3. 안내 문구
         st.info("""
             💡 **안내사항**
