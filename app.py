@@ -161,17 +161,16 @@ if before or mid or after:
         )
         st.info("💡 모바일에서 미리보기가 안 보인다면 위 버튼을 눌러 바로 다운로드하세요.")
         
-# 4. 모바일 호환 미리보기 (가장 깔끔한 방식)
-        base64_pdf = base64.b64encode(pdf_bytes).decode('utf-8')
-        
-        # iframe과 object를 섞지 않고, 하나만 확실하게 사용합니다.
-        
-        pdf_display = f'''
-            <object data="data:application/pdf;base64,{base64_pdf}" width="100%" height="600" type="application/pdf">
-                <div style="text-align:center; padding:20px; border:1px dashed #ccc;">
-                    모바일 브라우저 환경에 따라 미리보기가 지원되지 않을 수 있습니다.<br>
-                    위의 <b>다운로드 버튼</b>을 이용해 주세요.
-                </div>
-            </object>
-        '''
+# 4. PC/모바일 통합 미리보기 (가장 표준적인 iframe 방식)
+        try:
+            base64_pdf = base64.b64encode(pdf_bytes).decode('utf-8')
+            
+            # PDF 데이터를 브라우저가 인식할 수 있는 깔끔한 형태로 구성
+            pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="1000" type="application/pdf"></iframe>'
+            
+            # st.markdown의 unsafe_allow_html=True는 유지
+            st.markdown(pdf_display, unsafe_allow_html=True)
+            
+        except Exception as e:
+            st.error("미리보기를 불러오는 중 오류가 발생했습니다. 상단의 다운로드 버튼을 이용해 주세요.")
         st.markdown(pdf_display, unsafe_allow_html=True)
