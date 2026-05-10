@@ -39,44 +39,38 @@ class PhotoPDF(FPDF):
             self.cell(0, 15, 'PHOTO LOG', align='C', new_x="LMARGIN", new_y="NEXT")
         self.ln(5)
 
-def create_combined_pdf(work_name, location, before_files, mid_files, after_files, contractor_name):
+# --- (중략: 클래스 및 갑지 부분은 그대로 유지하되 cell 부분만 아래처럼 수정) ---
 
+def create_combined_pdf(work_name, location, before_files, mid_files, after_files, contractor_name):
     pdf = PhotoPDF()
     pdf.set_auto_page_break(auto=True, margin=15)
     
-    # 1. [갑지 생성] 첫 페이지 추가
+    # 1. [갑지 생성]
     pdf.add_page()
-    
-    # 중앙 제목
     pdf.set_font('malgunbd', '', 45)
     pdf.cell(0, 30, '사 진 대 지', align='C', new_x="LMARGIN", new_y="NEXT")
 
-    main_img = Image.open("로고.jpg").convert('RGB')
-        
-    # 메모리 버퍼로 변환 (기존 방식과 동일)
-    img_buffer = io.BytesIO()
-    main_img.save(img_buffer, format='JPEG', quality=80)
-    img_buffer.seek(0)
-        
-    # 사진 배치 (가운데 정렬: x=55, 너비=100mm 정도가 적당함)
-     # y축 위치는 결재란 아래인 40~50 정도로 잡으면 예쁩니다.
-    pdf.image(img_buffer, x=30, y=80, w=150)
-    
-    # 중앙 상세 정보 테이블 (표 중앙 정렬: (210-140)/2 = 35)
+    # 로고 이미지는 파일이 없을 경우를 대비해 예외처리 추가
+    try:
+        main_img = Image.open("로고.jpg").convert('RGB')
+        img_buffer = io.BytesIO()
+        main_img.save(img_buffer, format='JPEG', quality=80)
+        img_buffer.seek(0)
+        pdf.image(img_buffer, x=30, y=80, w=150)
+    except:
+        st.warning("⚠️ '로고.jpg' 파일을 찾을 수 없어 이미지 없이 생성합니다.")
+
+    # 상세 정보 테이블
     pdf.set_y(220)
     pdf.set_font('malgun', '', 15)
-    info_fields = [
-        ('공 사 명', work_name),
-        ('위 치', location),
-        ('시 공 사', contractor_name)
-    ]
+    info_fields = [('공 사 명', work_name), ('위 치', location), ('시 공 사', contractor_name)]
     
     for label, value in info_fields:
         pdf.set_x(35)
         pdf.cell(40, 15, label, border=1, align='C')
         pdf.cell(100, 15, value, border=1, align='L', new_x="LMARGIN", new_y="NEXT")
-    pdf.set_auto_page_break(auto=True, margin=15)
 
+    # 2. [본문 사진 페이지]
     sections = [("시공전", before_files), ("시공중", mid_files), ("시공후", after_files)]
     
     for section_name, files in sections:
@@ -85,45 +79,30 @@ def create_combined_pdf(work_name, location, before_files, mid_files, after_file
             pdf.add_page()
             batch = files[i:i+2]
             for img_file in batch:
-                # [여기가 핵심] 모든 로직이 이 for문 안에 같은 수직 선상에 있어야 합니다.
                 img = Image.open(img_file).convert('RGB')
                 img.thumbnail((600, 600), Image.Resampling.LANCZOS)
-    
-                # 1. 메모리에 이미지 저장
+                
                 img_byte_arr = io.BytesIO()
                 img.save(img_byte_arr, format='JPEG', quality=30)
                 img_byte_arr.seek(0)
                 
-                # 2. 틀 및 비율 계산
-                box_w = 160
-                box_h = 90
-                img_w, img_h = img.size
-                aspect = img_h / img_w
-    
-                display_w = box_w
-                display_h = box_h
-
-                x_offset = 25 + (box_w - display_w) / 2
-    
-                # 3. 이미지 삽입
-                pdf.image(img_byte_arr, x=x_offset, w=display_w, h=display_h)
+                # 이미지 삽입
+                pdf.image(img_byte_arr, x=25, w=160, h=90)
                 pdf.ln(2) 
-    
-                # 4. 폰트 및 표 출력
-                if 'malgun' in pdf.fonts:
-                    pdf.set_font('malgun', '', 11)
-                else:
-                    pdf.set_font('helvetica', '', 11)
                 
-                # 가로 너비 합계를 160mm로 조정 (25+55+25+55)
+                # --- 🔥 여기가 에러의 주범! 최신 문법으로 수정 완료 ---
+                pdf.set_font('malgun', '', 11)
                 pdf.set_x(25)
                 pdf.cell(25, 10, '공사명', border=1, align='C')
                 pdf.cell(55, 10, work_name, border=1)
                 pdf.cell(25, 10, '위 치', border=1, align='C')
-                pdf.cell(55, 10, location, border=1, ln=True)
+                # ln=True 대신 new_x, new_y 사용
+                pdf.cell(55, 10, location, border=1, new_x="LMARGIN", new_y="NEXT") 
+                
                 pdf.set_x(25)
                 pdf.cell(25, 10, '내 용', border=1, align='C')
-                pdf.cell(135, 10, f"{section_name}", border=1, ln=True)
+                # ln=True 대신 new_x, new_y 사용
+                pdf.cell(135, 10, f"{section_name}", border=1, new_x="LMARGIN", new_y="NEXT")
                 pdf.ln(10)
                 
     return pdf.output()
@@ -158,19 +137,19 @@ if before or mid or after:
         cols = st.columns(4) # 4열로 썸네일 배치
         for idx, file in enumerate(before):
             with cols[idx % 4]:
-                 st.image(file, width=True)
+                 st.image(file)
         
         st.write("✅ 선택된 시공중 사진 (클릭해서 크게 확인):")
         cols = st.columns(4) # 4열로 썸네일 배치
         for idx, file in enumerate(mid):
             with cols[idx % 4]:
-                 st.image(file, width=True)         
+                 st.image(file)         
 
         st.write("✅ 선택된 시공후 사진 (클릭해서 크게 확인):")
         cols = st.columns(4) # 4열로 썸네일 배치
         for idx, file in enumerate(after):
             with cols[idx % 4]:
-                 st.image(file, width=True)
+                 st.image(file)
             # 잘못 올렸다면 여기서 확인 가능!
 
         # 3. 다운로드 버튼 강조 (모바일에서 가장 중요!)
@@ -178,8 +157,7 @@ if before or mid or after:
             label="🚀 완성된 PDF 다운로드 (터치)",
             data=bytes(pdf_bytes),
             file_name=f"{work_name}_사진대지.pdf",
-            mime="application/pdf",
-            width=True # 버튼을 화면 꽉 차게
+            mime="application/pdf",            
         )
         st.info("💡 모바일에서 미리보기가 안 보인다면 위 버튼을 눌러 바로 다운로드하세요.")
         
