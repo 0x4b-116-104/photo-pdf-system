@@ -152,25 +152,29 @@ if before or mid or after:
                  st.image(file)
             # 잘못 올렸다면 여기서 확인 가능!
 
-        # 3. 다운로드 버튼 강조 (모바일에서 가장 중요!)
+# --- PDF 생성 완료 후 출력 섹션 ---
+        st.success("✅ PDF 생성이 완료되었습니다!")
+
+        # 1. 메인 다운로드 버튼 (강조)
         st.download_button(
-            label="🚀 완성된 PDF 다운로드 (터치)",
-            data=bytes(pdf_bytes),
+            label="📂 완성된 사진대지 PDF 다운로드",
+            data=pdf_bytes,
             file_name=f"{work_name}_사진대지.pdf",
-            mime="application/pdf",            
+            mime="application/pdf",
+            key="download-main"
         )
-        st.info("💡 모바일에서 미리보기가 안 보인다면 위 버튼을 눌러 바로 다운로드하세요.")
-        
-# 4. PC/모바일 통합 미리보기 (가장 표준적인 iframe 방식)
-        try:
-            base64_pdf = base64.b64encode(pdf_bytes).decode('utf-8')
-            
-            # PDF 데이터를 브라우저가 인식할 수 있는 깔끔한 형태로 구성
-            pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="1000" type="application/pdf"></iframe>'
-            
-            # st.markdown의 unsafe_allow_html=True는 유지
-            st.markdown(pdf_display, unsafe_allow_html=True)
-            
-        except Exception as e:
-            st.error("미리보기를 불러오는 중 오류가 발생했습니다. 상단의 다운로드 버튼을 이용해 주세요.")
-        st.markdown(pdf_display, unsafe_allow_html=True)
+
+        st.divider()
+
+        # 2. 보조 링크 (혹시 버튼이 안 눌릴 때를 대비)
+        base64_pdf = base64.b64encode(pdf_bytes).decode('utf-8')
+        href = f'<a href="data:application/pdf;base64,{base64_pdf}" download="{work_name}_사진대지.pdf" style="color: #007bff; text-decoration: underline; font-weight: bold;">[여기]를 눌러서 수동으로 다운로드하기</a>'
+        st.markdown(href, unsafe_allow_html=True)
+
+        # 3. 안내 문구
+        st.info("""
+            💡 **안내사항**
+            - 모바일/PC 보안 설정에 따라 미리보기가 차단되어 보이지 않을 수 있습니다.
+            - 위 **다운로드 버튼**을 눌러 파일을 저장한 뒤 확인해 주세요!
+            - 카톡 브라우저 사용 시, 다운로드가 안 되면 오른쪽 하단 '...' 버튼을 눌러 **'다른 브라우저로 열기'**를 해주세요.
+        """)
