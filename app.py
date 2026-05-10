@@ -14,8 +14,8 @@ class PhotoPDF(FPDF):
         bd_path = os.path.join(base_path, 'font', 'malgunbd.ttf' )
         try:
             # 이름을 소문자 'malgun'으로 통일해서 등록합니다.
-            self.add_font('malgun', '', font_path, uni=True)
-            self.add_font('malgunbd', '', bd_path, uni=True)
+            self.add_font('malgun', '', font_path)
+            self.add_font('malgunbd', '', bd_path)
         except Exception as e:
             # 폰트 로드 실패 시 화면에 에러를 띄워줍니다.
             st.error(f"폰트 로드 실패! 경로를 확인하세요: {font_path}")
@@ -28,15 +28,15 @@ class PhotoPDF(FPDF):
             if self.page_no() > 1:
                if 'malgun' in self.fonts:
                    self.set_font('malgun', '', 20)
-                   self.cell(0, 15, '사 진 대 지', ln=True, align='C')
+                   self.cell(0, 15, '사 진 대 지', align='C', new_x="LMARGIN", new_y="NEXT")
                else:
                 self.set_font('helvetica', 'B', 20)
-                self.cell(0, 15, 'PHOTO LOG', ln=True, align='C')
+                self.cell(0, 15, 'PHOTO LOG', align='C', new_x="LMARGIN", new_y="NEXT")
             self.ln(5)
 
         else:
             self.set_font('helvetica', 'B', 20)
-            self.cell(0, 15, 'PHOTO LOG', ln=True, align='C')
+            self.cell(0, 15, 'PHOTO LOG', align='C', new_x="LMARGIN", new_y="NEXT")
         self.ln(5)
 
 def create_combined_pdf(work_name, location, before_files, mid_files, after_files, contractor_name):
@@ -49,7 +49,7 @@ def create_combined_pdf(work_name, location, before_files, mid_files, after_file
     
     # 중앙 제목
     pdf.set_font('malgunbd', '', 45)
-    pdf.cell(0, 30, '사 진 대 지', ln=True, align='C')
+    pdf.cell(0, 30, '사 진 대 지', align='C', new_x="LMARGIN", new_y="NEXT")
 
     main_img = Image.open("로고.jpg").convert('RGB')
         
@@ -74,7 +74,7 @@ def create_combined_pdf(work_name, location, before_files, mid_files, after_file
     for label, value in info_fields:
         pdf.set_x(35)
         pdf.cell(40, 15, label, border=1, align='C')
-        pdf.cell(100, 15, value, border=1, ln=True, align='L')
+        pdf.cell(100, 15, value, border=1, align='L', new_x="LMARGIN", new_y="NEXT")
     pdf.set_auto_page_break(auto=True, margin=15)
 
     sections = [("시공전", before_files), ("시공중", mid_files), ("시공후", after_files)]
@@ -158,19 +158,19 @@ if before or mid or after:
         cols = st.columns(4) # 4열로 썸네일 배치
         for idx, file in enumerate(before):
             with cols[idx % 4]:
-                 st.image(file, use_container_width=True)
+                 st.image(file, width=True)
         
         st.write("✅ 선택된 시공중 사진 (클릭해서 크게 확인):")
         cols = st.columns(4) # 4열로 썸네일 배치
         for idx, file in enumerate(mid):
             with cols[idx % 4]:
-                 st.image(file, use_container_width=True)         
+                 st.image(file, width=True)         
 
         st.write("✅ 선택된 시공후 사진 (클릭해서 크게 확인):")
         cols = st.columns(4) # 4열로 썸네일 배치
         for idx, file in enumerate(after):
             with cols[idx % 4]:
-                 st.image(file, use_container_width=True)
+                 st.image(file, width=True)
             # 잘못 올렸다면 여기서 확인 가능!
 
         # 3. 다운로드 버튼 강조 (모바일에서 가장 중요!)
@@ -179,7 +179,7 @@ if before or mid or after:
             data=bytes(pdf_bytes),
             file_name=f"{work_name}_사진대지.pdf",
             mime="application/pdf",
-            use_container_width=True # 버튼을 화면 꽉 차게
+            width=True # 버튼을 화면 꽉 차게
         )
         st.info("💡 모바일에서 미리보기가 안 보인다면 위 버튼을 눌러 바로 다운로드하세요.")
         
