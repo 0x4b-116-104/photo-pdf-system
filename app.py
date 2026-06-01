@@ -15,7 +15,7 @@ class PhotoPDF(FPDF):
             self.add_font('malgun', '', font_path)
             self.add_font('malgunbd', '', bd_path)
         except Exception as e:
-            st.error(f"폰트 로드 실패! 경로를 확인하세요: {font_path}")
+            printer(f"폰트 로드 실패! 경로를 확인하세요: {font_path}")
 
     def header(self):
         if 'malgun' in self.fonts:
