@@ -50,7 +50,6 @@ def create_combined_pdf(work_name, location, before_bufs, mid_bufs, after_bufs, 
     pdf.cell(0, 30, '사 진 대 지', align='C', new_x="LMARGIN", new_y="NEXT")
 
     try:
-        main_img = st.file_uploader("시공사 로고", accept_multiple_files=True, key="main_img")
         img_buffer = io.BytesIO()
         main_img.save(img_buffer, format='JPEG', quality=80)
         img_buffer.seek(0)
