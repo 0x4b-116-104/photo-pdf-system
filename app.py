@@ -103,6 +103,7 @@ with col2:
 contractor_name = st.text_input("시공사", "시공사 입력")
 
 st.subheader("📸 사진 업로드")
+main_img = st.file_uploader("시공사 로고", accept_multiple_files=True, key="main_img")
 before = st.file_uploader("1. 시공전 사진", accept_multiple_files=True, key="before")
 mid    = st.file_uploader("2. 시공중 사진", accept_multiple_files=True, key="mid")
 after  = st.file_uploader("3. 시공후 사진", accept_multiple_files=True, key="after")
