@@ -40,7 +40,7 @@ def compress_image(img_file, max_size=1500, quality=60):
     return buf
 
 
-def create_combined_pdf(work_name, location,main_img, before_bufs, mid_bufs, after_bufs, contractor_name):
+def create_combined_pdf(work_name, location, main_img, before_bufs, mid_bufs, after_bufs, contractor_name):
     pdf = PhotoPDF()
     pdf.set_auto_page_break(auto=True, margin=15)
 
@@ -50,6 +50,7 @@ def create_combined_pdf(work_name, location,main_img, before_bufs, mid_bufs, aft
     pdf.cell(0, 30, '사 진 대 지', align='C', new_x="LMARGIN", new_y="NEXT")
 
     try:
+        main_img=main_img
         img_buffer = io.BytesIO()
         main_img.save(img_buffer, format='JPEG', quality=80)
         img_buffer.seek(0)
