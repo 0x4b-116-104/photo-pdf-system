@@ -40,7 +40,7 @@ def compress_image(img_file, max_size=1500, quality=60):
     return buf
 
 
-def create_combined_pdf(work_name, location, before_bufs, mid_bufs, after_bufs, contractor_name):
+def create_combined_pdf(work_name, location,main_img, before_bufs, mid_bufs, after_bufs, contractor_name):
     pdf = PhotoPDF()
     pdf.set_auto_page_break(auto=True, margin=15)
 
@@ -120,7 +120,7 @@ if st.button("📄 PDF 생성하기", type="primary", disabled=not (before or mi
 
             pdf_bytes = create_combined_pdf(
                 work_name, location,
-                before_bufs, mid_bufs, after_bufs,
+                main_img, before_bufs, mid_bufs, after_bufs,
                 contractor_name
             )
             final_data = pdf_bytes if isinstance(pdf_bytes, bytes) else bytes(pdf_bytes)
