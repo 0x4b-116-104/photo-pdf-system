@@ -50,7 +50,7 @@ def create_combined_pdf(work_name, location, before_bufs, mid_bufs, after_bufs, 
     pdf.cell(0, 30, '사 진 대 지', align='C', new_x="LMARGIN", new_y="NEXT")
 
     try:
-        main_img = Image.open("로고.jpg").convert('RGB')
+        main_img = st.file_uploader("시공사 로고", accept_multiple_files=True, key="main_img")
         img_buffer = io.BytesIO()
         main_img.save(img_buffer, format='JPEG', quality=80)
         img_buffer.seek(0)
@@ -100,7 +100,7 @@ with col1:
 with col2:
     location = st.text_input("위치", placeholder="위치를 입력하세요")
 
-contractor_name = st.text_input("시공사", "역전의 명수")
+contractor_name = st.text_input("시공사", "시공사 입력")
 
 st.subheader("📸 사진 업로드")
 before = st.file_uploader("1. 시공전 사진", accept_multiple_files=True, key="before")
